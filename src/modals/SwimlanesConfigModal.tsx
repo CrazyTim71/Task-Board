@@ -5,8 +5,9 @@ import { t } from 'src/utils/lang/helper';
 import Sortable from 'sortablejs';
 import { swimlaneConfigs } from 'src/interfaces/BoardConfigs';
 import { HeaderUITypeOptions } from 'src/interfaces/Enums';
-import { getCustomStatusOptionsForDropdown, StatusDropdownOption } from 'src/interfaces/Mapping';
+import { getCustomStatusOptionsForDropdown, getPriorityOptionsForDropdown, StatusDropdownOption } from 'src/interfaces/Mapping';
 import TaskBoard from 'main';
+import { getFileSuggestions, MultiSuggest } from 'src/services/MultiSuggest';
 
 interface SwimlanesConfigModalProps {
 	swimlaneConfig: swimlaneConfigs;
@@ -15,11 +16,11 @@ interface SwimlanesConfigModalProps {
 }
 
 export class SwimlanesConfigModal extends Modal {
-	plugin: TaskBoard;
 	swimlaneConfig: swimlaneConfigs;
 	onSave: (config: swimlaneConfigs) => void;
 	onCancel: () => void;
 
+	private plugin: TaskBoard;
 	private enabled: boolean;
 	private property: string;
 	private customValue: string;
@@ -50,7 +51,9 @@ export class SwimlanesConfigModal extends Modal {
 		this.customValue = swimlaneConfig.customValue || '';
 		this.sortCriteria = swimlaneConfig.sortCriteria || 'asc';
 		this.hideEmptySwimlanes = swimlaneConfig.hideEmptySwimlanes ?? false;
-		this.customSortOrder = swimlaneConfig.customSortOrder || [];
+		this.customSortOrder = swimlaneConfig.customSortOrder
+			? swimlaneConfig.customSortOrder.map((item) => ({ ...item }))
+			: [];
 		this.maxHeight = swimlaneConfig.maxHeight || '300px';
 		this.groupAllRest = swimlaneConfig.groupAllRest ?? true;
 		this.headerUIType = swimlaneConfig.headerUIType || HeaderUITypeOptions.horizontal;
@@ -243,18 +246,64 @@ export class SwimlanesConfigModal extends Modal {
 				text: String(sortRow.index),
 			});
 
-			if (this.property !== 'status') {
-				// Text input for non-status properties
+			if (this.property === 'tags') {
+				// Text input element
 				const input = row.createEl('input', {
 					attr: { type: 'text', placeholder: t('enter-property-value') },
 					cls: 'swimlanesConfigSortRowInput',
 				});
-				input.value = sortRow.value;
 				input.addEventListener('input', (e) => {
-					this.customSortOrder[rowIndex].value = (e.target as HTMLInputElement).value;
+					const rawValue = (e.target as HTMLInputElement).value;
+					this.customSortOrder[rowIndex].value = rawValue.startsWith("#") ? rawValue.replace('#', '') : rawValue;
 				});
 
-			} else {
+				const suggestions = getFileSuggestions(this.app);
+				const onSelectCallback = (value: string) => {
+					this.customSortOrder[rowIndex].value = value.replace("#", '');
+				};
+				const multiSuggestInstance = new MultiSuggest(
+					input,
+					new Set(suggestions),
+					onSelectCallback,
+					this.app,
+				);
+			} else if (this.property === 'filePath') {
+				const input = row.createEl('input', {
+					attr: { type: 'text', placeholder: t('enter-property-value') },
+					cls: 'swimlanesConfigSortRowInput',
+				});
+				const suggestions = getFileSuggestions(this.app);
+				const onSelectCallback = (value: string) => {
+					this.customSortOrder[rowIndex].value = value.trim();
+				};
+				const multiSuggestInstance = new MultiSuggest(
+					input,
+					new Set(suggestions),
+					onSelectCallback,
+					this.app,
+				);
+			} else if (this.property === 'priority') {
+				const prioritySelect = row.createEl('select', {
+					cls: 'swimlanesConfigSortRowDropdown',
+					attr: { 'aria-label': t('priority') },
+				});
+				const priorityOptions = getPriorityOptionsForDropdown();
+
+				priorityOptions.forEach((option) => {
+					prioritySelect.createEl('option', {
+						attr: { value: String(option.value) },
+						text: option.text,
+					});
+				});
+
+				prioritySelect.value = String(sortRow.value ?? '0');
+				prioritySelect.addEventListener('change', (e) => {
+					this.customSortOrder[rowIndex].value = (
+						e.target as HTMLSelectElement
+					).value;
+				});
+
+			} else if (this.property === 'status') {
 				// Native HTML select for status property
 				const statusSelect = row.createEl('select', {
 					cls: 'swimlanesConfigSortRowDropdown',
@@ -265,7 +314,6 @@ export class SwimlanesConfigModal extends Modal {
 					this.plugin.settings.data.globalSettings.customStatuses,
 					{ mode: 'grouped', includePlaceholder: true }
 				);
-				console.log("statusOptions : ", statusOptions);
 
 				// Helper to create an option element
 				const createOption = (opt: StatusDropdownOption): HTMLOptionElement => {
@@ -315,6 +363,16 @@ export class SwimlanesConfigModal extends Modal {
 				statusSelect.addEventListener('change', (e) => {
 					const newValue = (e.target as HTMLSelectElement).value;
 					this.customSortOrder[rowIndex].value = newValue === '' ? ' ' : newValue;
+				});
+			} else {
+				// Text input for non-status properties
+				const input = row.createEl('input', {
+					attr: { type: 'text', placeholder: t('enter-property-value') },
+					cls: 'swimlanesConfigSortRowInput',
+				});
+				input.value = sortRow.value;
+				input.addEventListener('input', (e) => {
+					this.customSortOrder[rowIndex].value = (e.target as HTMLInputElement).value;
 				});
 			}
 
