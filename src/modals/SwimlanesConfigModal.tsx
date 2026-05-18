@@ -1,13 +1,14 @@
 // /src/modals/SwimlanesConfigModal.tsx
 
-import { Modal, App, Setting, setIcon } from 'obsidian';
+import { Modal, App, Setting, setIcon, normalizePath } from 'obsidian';
 import { t } from 'src/utils/lang/helper';
 import Sortable from 'sortablejs';
 import { swimlaneConfigs } from 'src/interfaces/BoardConfigs';
 import { HeaderUITypeOptions } from 'src/interfaces/Enums';
 import { getCustomStatusOptionsForDropdown, getPriorityOptionsForDropdown, StatusDropdownOption } from 'src/interfaces/Mapping';
 import TaskBoard from 'main';
-import { getFileSuggestions, MultiSuggest } from 'src/services/MultiSuggest';
+import { getFileSuggestions, getTagSuggestions, MultiSuggest } from 'src/services/MultiSuggest';
+import { ClosePopupConfrimationModal } from './ClosePopupConfrimationModal';
 
 interface SwimlanesConfigModalProps {
 	swimlaneConfig: swimlaneConfigs;
@@ -21,6 +22,7 @@ export class SwimlanesConfigModal extends Modal {
 	onCancel: () => void;
 
 	private plugin: TaskBoard;
+	private edited: boolean;
 	private enabled: boolean;
 	private property: string;
 	private customValue: string;
@@ -46,6 +48,7 @@ export class SwimlanesConfigModal extends Modal {
 		this.onSave = onSave;
 		this.onCancel = onCancel;
 
+		this.edited = false;
 		this.enabled = swimlaneConfig.enabled;
 		this.property = swimlaneConfig.property || 'tags';
 		this.customValue = swimlaneConfig.customValue || '';
@@ -87,7 +90,7 @@ export class SwimlanesConfigModal extends Modal {
 			this.renderHeaderUIType(modalContent);
 		}
 
-		this.renderButtons(modalContent);
+		// this.renderButtons(modalContent);
 	}
 
 	private renderHeader(container: HTMLElement) {
@@ -105,6 +108,7 @@ export class SwimlanesConfigModal extends Modal {
 					.setValue(this.enabled)
 					.onChange(async (value) => {
 						this.enabled = value;
+						this.edited = true;
 						this.renderContent(container.parentElement!);
 					}),)
 	}
@@ -130,6 +134,7 @@ export class SwimlanesConfigModal extends Modal {
 						this.property =
 							value;
 						this.renderContent(container.parentElement!);
+						this.edited = true;
 					})
 			});
 	}
@@ -143,6 +148,7 @@ export class SwimlanesConfigModal extends Modal {
 			.addText((text) => {
 				text.setValue(this.customValue).onChange((value) => {
 					this.customValue = value;
+					this.edited = true;
 				});
 			});
 	}
@@ -154,6 +160,7 @@ export class SwimlanesConfigModal extends Modal {
 			.addText((text) => {
 				text.setValue(this.maxHeight).onChange((value) => {
 					this.maxHeight = value;
+					this.edited = true;
 				});
 			});
 	}
@@ -178,6 +185,7 @@ export class SwimlanesConfigModal extends Modal {
 						this.sortCriteria =
 							value;
 						this.renderContent(container.parentElement!);
+						this.edited = true;
 					})
 			});
 
@@ -252,14 +260,17 @@ export class SwimlanesConfigModal extends Modal {
 					attr: { type: 'text', placeholder: t('enter-property-value') },
 					cls: 'swimlanesConfigSortRowInput',
 				});
+				input.value = sortRow.value ?? '';
 				input.addEventListener('input', (e) => {
 					const rawValue = (e.target as HTMLInputElement).value;
 					this.customSortOrder[rowIndex].value = rawValue.startsWith("#") ? rawValue.replace('#', '') : rawValue;
+					this.edited = true;
 				});
 
-				const suggestions = getFileSuggestions(this.app);
+				const suggestions = getTagSuggestions(this.app);
 				const onSelectCallback = (value: string) => {
 					this.customSortOrder[rowIndex].value = value.replace("#", '');
+					this.edited = true;
 				};
 				const multiSuggestInstance = new MultiSuggest(
 					input,
@@ -272,9 +283,17 @@ export class SwimlanesConfigModal extends Modal {
 					attr: { type: 'text', placeholder: t('enter-property-value') },
 					cls: 'swimlanesConfigSortRowInput',
 				});
+				input.value = sortRow.value ?? '';
+				input.addEventListener('input', (e) => {
+					const rawValue = (e.target as HTMLInputElement).value ?? "";
+					this.customSortOrder[rowIndex].value = normalizePath(rawValue);
+					this.edited = true;
+				});
+
 				const suggestions = getFileSuggestions(this.app);
 				const onSelectCallback = (value: string) => {
 					this.customSortOrder[rowIndex].value = value.trim();
+					this.edited = true;
 				};
 				const multiSuggestInstance = new MultiSuggest(
 					input,
@@ -301,6 +320,7 @@ export class SwimlanesConfigModal extends Modal {
 					this.customSortOrder[rowIndex].value = (
 						e.target as HTMLSelectElement
 					).value;
+					this.edited = true;
 				});
 
 			} else if (this.property === 'status') {
@@ -363,6 +383,7 @@ export class SwimlanesConfigModal extends Modal {
 				statusSelect.addEventListener('change', (e) => {
 					const newValue = (e.target as HTMLSelectElement).value;
 					this.customSortOrder[rowIndex].value = newValue === '' ? ' ' : newValue;
+					this.edited = true;
 				});
 			} else {
 				// Text input for non-status properties
@@ -373,6 +394,7 @@ export class SwimlanesConfigModal extends Modal {
 				input.value = sortRow.value;
 				input.addEventListener('input', (e) => {
 					this.customSortOrder[rowIndex].value = (e.target as HTMLInputElement).value;
+					this.edited = true;
 				});
 			}
 
@@ -404,12 +426,14 @@ export class SwimlanesConfigModal extends Modal {
 
 					this.customSortOrder = updatedOrder;
 					this.renderSortRows();
+					this.edited = true;
 				},
 			});
 		}
 	}
 
 	private handleAddSortRow() {
+		this.edited = true;
 		const newIndex = this.customSortOrder.length + 1;
 		this.customSortOrder = [
 			...this.customSortOrder,
@@ -419,6 +443,7 @@ export class SwimlanesConfigModal extends Modal {
 	}
 
 	private handleRemoveSortRow(rowIndex: number) {
+		this.edited = true;
 		this.customSortOrder = this.customSortOrder
 			.filter((_, idx) => idx !== rowIndex)
 			.map((item, idx) => ({
@@ -437,6 +462,7 @@ export class SwimlanesConfigModal extends Modal {
 					.setValue(this.groupAllRest)
 					.onChange(async (value) => {
 						this.groupAllRest = value;
+						this.edited = true;
 					}),)
 	}
 
@@ -449,6 +475,7 @@ export class SwimlanesConfigModal extends Modal {
 					.setValue(this.hideEmptySwimlanes)
 					.onChange(async (value) => {
 						this.hideEmptySwimlanes = value;
+						this.edited = true;
 					}),)
 	}
 
@@ -470,6 +497,7 @@ export class SwimlanesConfigModal extends Modal {
 					.onChange(async (value) => {
 						this.headerUIType =
 							value;
+						this.edited = true;
 					})
 			});
 	}
@@ -503,9 +531,10 @@ export class SwimlanesConfigModal extends Modal {
 				customSortOrder: this.customSortOrder,
 				groupAllRest: this.groupAllRest,
 				headerUIType: this.headerUIType,
-				minimized: [],
+				minimized: this.swimlaneConfig.minimized,
 			};
 			this.onSave(updatedConfig);
+			this.edited = false;
 			this.close();
 		});
 	}
@@ -517,5 +546,32 @@ export class SwimlanesConfigModal extends Modal {
 		}
 		const { contentEl } = this;
 		contentEl.empty();
+
+		// Call the super method to correctly close the modal
+		super.onClose();
+	}
+
+	public close(): void {
+		if (this.edited) {
+			// this.handleCloseAttempt();
+			const updatedConfig: swimlaneConfigs = {
+				enabled: this.enabled,
+				hideEmptySwimlanes: this.hideEmptySwimlanes,
+				property: this.property,
+				maxHeight: this.maxHeight,
+				customValue: this.customValue || undefined,
+				sortCriteria: this.sortCriteria,
+				customSortOrder: this.customSortOrder,
+				groupAllRest: this.groupAllRest,
+				headerUIType: this.headerUIType,
+				minimized: this.swimlaneConfig.minimized,
+			};
+			this.onSave(updatedConfig);
+			this.onClose();
+			super.close();
+		} else {
+			this.onClose();
+			super.close();
+		}
 	}
 }
