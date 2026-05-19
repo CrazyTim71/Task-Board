@@ -200,7 +200,7 @@ const en: Lang = {
 	"liveEditor": "Live Editor",
 	"rawEditor": "Source mode",
 	"child-tasks": "Child tasks",
-	"child-tasks-section-description": "Connect the tasks which are blocking the current task.",
+	"child-tasks-section-description": "Add dependency task = Connect the tasks which are blocking the current task.",
 	"task-board-bug-reporter": "Task Board bug reporter",
 	"report": "Report",
 	"ignore-this-bug": "Ignore this bug",
@@ -619,7 +619,10 @@ const en: Lang = {
 	"no-columns-message": "Create columns in this kanban view using the view configuration button from top right corner.",
 	"verifySubtasksAndChildtasksAreComplete-false-message": "You have set not to mark any task as complete until all its sub-tasks and child-tasks are completed in the setting. Please complete all the dependent items first.",
 	"from-tooltip": "From : The start value of the relative date range. Eg = -7 to see tasks from past 7 days.",
-	"to-tooltip": "To : The end value of the relative date range. Eg = 7 to see tasks for next seven days."
+	"to-tooltip": "To : The end value of the relative date range. Eg = 7 to see tasks for next seven days.",
+	"add-child-task": "Add child tasks",
+	"search-child-task": "Search for a child task",
+	"select-child-task": "Select child task"
 };
 
 export default en;
