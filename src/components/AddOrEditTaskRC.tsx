@@ -1029,7 +1029,12 @@ export const AddOrEditTaskRC: React.FC<{
 				title: t("select-child-task")
 			});
 		} catch (err) {
-			console.error(err);
+			bugReporterManagerInsatance.showNotice(
+				193,
+				"There was an issue while opening the child task selector modal. Have a look at the below error message to know more. If this issue persists, kindly report to the developer.",
+				String(err),
+				"AddOrEditTaskRC.tsx/handleOpenChildTaskSelector",
+			);
 		}
 	};
 

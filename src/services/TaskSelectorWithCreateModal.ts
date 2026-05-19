@@ -3,6 +3,7 @@ import TaskBoard from "main";
 import { App, setIcon, SuggestModal } from "obsidian";
 import createTaskCard from "src/components/KanbanView/TaskCardImage";
 import { taskItem } from "src/interfaces/TaskItem";
+import { bugReporterManagerInsatance } from "src/managers/BugReporter";
 import { buildTaskFromRawContent } from "src/managers/VaultScanner";
 import { generateRandomTempTaskId } from "src/utils/TaskItemUtils";
 import { createNewInlineTask } from "src/utils/taskLine/TaskItemEventHandlers";
@@ -64,12 +65,12 @@ export function taskMatchesSelectorQuery(
 /**
  * A fuzzy selector modal that allows users to either:
  * 1. Select an existing task from the list
- * 2. Create a new task via NLP parsing by pressing Shift+Enter
+ * 2. Create a new task by pressing Shift+Enter
  *
  * Features:
- * - Real-time NLP preview in footer as user types
- * - Shift+Enter to create a new task from the current query
  * - Standard Enter to select highlighted existing task
+ *
+ * @todo - Shift+Enter to create a new task from the current query
  */
 export class TaskSelectorWithCreateModal extends SuggestModal<taskItem> {
 	private tasks: taskItem[];
@@ -225,10 +226,14 @@ export class TaskSelectorWithCreateModal extends SuggestModal<taskItem> {
 			this.close();
 			this.options.onResult({ type: "created", task: completeTask });
 		} catch (error) {
-			console.error("Failed to create task:", error);
 			const message =
 				error instanceof Error ? error.message : String(error);
-			new Notice(t("modals.taskCreation.notices.failure", { message }));
+			bugReporterManagerInsatance.showNotice(
+				195,
+				"There was an issue while creating a new task. Please see the below error message. Report this to the developer, if its critical issue and appearing constantly.",
+				message,
+				"TaskSelectorWithCreateModal.ts/createNewTask",
+			);
 		}
 	}
 

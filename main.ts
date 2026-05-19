@@ -114,7 +114,7 @@ export default class TaskBoard extends Plugin {
 	}
 
 	async onload() {
-		console.log("Task Board : Loading...");
+		// console.log("Task Board : Loading...");
 		// Loads settings data and creating the Settings Tab in main Setting
 		await this.loadSettings();
 
@@ -174,7 +174,7 @@ export default class TaskBoard extends Plugin {
 	}
 
 	onunload() {
-		console.log("Task Board : Uninstalling...");
+		// console.log("Task Board : Uninstalling...");
 
 		// deleteAllLocalStorageKeys(); // TODO : Enable this while production build. This is disabled for testing purpose because the data from localStorage is required for testing.
 		// onUnloadSave(this.plugin);
@@ -356,8 +356,8 @@ export default class TaskBoard extends Plugin {
 		}
 		const tasksPlugin = new TasksPluginApi(this);
 		if (!tasksPlugin.isTasksPluginEnabled()) {
+			// Only process if we have properties to hide
 			this.registerMarkdownPostProcessor((element, context) => {
-				// Only process if we have properties to hide
 				// Find all list items that could be tasks
 				const listItems = element.querySelectorAll("li");
 

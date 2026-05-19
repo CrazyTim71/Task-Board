@@ -58,7 +58,7 @@ export class TaskBoardApi {
 			 * if (taskContent === "") {
 			 *   console.log("User cancelled the task creation");
 			 * } else if (taskContent.startsWith("Error")) {
-			 *   console.error("Failed to create task:", taskContent);
+			 *   console.error("[Task Board] Failed to create task:", taskContent);
 			 * } else {
 			 *   console.log("Task created successfully:", taskContent);
 			 * }

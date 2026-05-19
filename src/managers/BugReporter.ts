@@ -32,7 +32,7 @@ class BugReporterManager {
 	private alreadyShownBugsIDs: number[] = [];
 	private LOG_FILE_PATH = "";
 	private readonly MAX_RECENT_LOGS = 20;
-	private readonly MAX_USED_ID = 192; // This constant will not be used anywhere, its simply to keep track of the the recent ID used.
+	private readonly MAX_USED_ID = 195; // This constant will not be used anywhere, its simply to keep track of the the recent ID used.
 
 	private constructor() {
 		// Private constructor to enforce singleton pattern
@@ -88,7 +88,10 @@ class BugReporterManager {
 				}
 			}
 		} catch (error) {
-			console.error("Error ensuring log file exists:", error);
+			console.error(
+				"[Task Board] Error ensuring log file exists:",
+				error,
+			);
 		}
 	}
 
@@ -147,7 +150,7 @@ class BugReporterManager {
 
 			return bugEntries;
 		} catch (error) {
-			console.error("Error parsing log file:", error);
+			console.error("[Task Board] Error parsing log file:", error);
 			return [];
 		}
 	}
@@ -212,7 +215,10 @@ class BugReporterManager {
 
 			return null;
 		} catch (error) {
-			console.error("Error parsing bug report entry:", error);
+			console.error(
+				"[Task Board] Error parsing bug report entry:",
+				error,
+			);
 			return null;
 		}
 	}
@@ -282,7 +288,10 @@ ${entry.bugContent}
 
 			await vault.adapter.write(this.LOG_FILE_PATH, newContent);
 		} catch (error) {
-			console.error("Error appending bug report to log file:", error);
+			console.error(
+				"[Task Board] Error appending bug report to log file:",
+				error,
+			);
 		}
 	}
 

@@ -896,7 +896,7 @@ const MapView: React.FC<MapViewProps> = ({
 			item.setTitle(t("toggle-animation"));
 			item.setIcon("sparkles");
 			item.onClick(() => {
-				console.log("Will be implemented in future...");
+				// console.log("Will be implemented in future...");
 			});
 			item.setDisabled(true);
 		});
@@ -905,7 +905,7 @@ const MapView: React.FC<MapViewProps> = ({
 			item.setTitle(t("change-color"));
 			item.setIcon("palette");
 			item.onClick(() => {
-				console.log("Will be implemented in future...");
+				// console.log("Will be implemented in future...");
 			});
 			item.setDisabled(true);
 		});

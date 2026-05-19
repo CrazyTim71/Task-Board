@@ -2,6 +2,7 @@ import { t } from "src/utils/lang/helper";
 import { defaultTaskStatuses } from "./Enums";
 import { taskItem } from "./TaskItem";
 import { CustomStatus } from "./GlobalSettings";
+import { bugReporterManagerInsatance } from "src/managers/BugReporter";
 
 export const priorityEmojis: { [key: number]: string } = {
 	0: "0",
@@ -134,8 +135,10 @@ export const getCustomStatusOptionsForDropdown = (
 	});
 
 	if (validStatuses.length === 0) {
-		console.error(
-			"[getCustomStatusOptionsForDropdown] No valid statuses after filtering",
+		bugReporterManagerInsatance.addToLogs(
+			194,
+			`There are No valid statuses available after filtering. Here are the current statusConfigs set by user : ${statusConfigs}`,
+			"Mapping.ts/getCustomStatusOptionsForDropdown",
 		);
 		return mode === "grouped"
 			? { type: "grouped", groups: [] }
