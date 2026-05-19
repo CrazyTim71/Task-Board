@@ -1,6 +1,6 @@
 import { t } from "i18next";
 import TaskBoard from "main";
-import { App, setIcon, SuggestModal } from "obsidian";
+import { App, SuggestModal, Notice } from "obsidian";
 import createTaskCard from "src/components/KanbanView/TaskCardImage";
 import { taskItem } from "src/interfaces/TaskItem";
 import { bugReporterManagerInsatance } from "src/managers/BugReporter";
