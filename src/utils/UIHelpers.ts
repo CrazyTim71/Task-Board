@@ -1,4 +1,5 @@
 import { sanitizeHTMLToDom } from "obsidian";
+import { taskPropertiesNames } from "src/interfaces/Enums";
 import { bugReporterManagerInsatance } from "src/managers/BugReporter";
 
 /**
@@ -88,3 +89,42 @@ export function updateRGBAOpacity(rgba: string, newOpacity: number): string {
  * @returns DocumentFragment containing the sanitized HTML
  */
 export const createFragmentWithHTML = (html: string) => sanitizeHTMLToDom(html);
+
+/**
+ * Maps task property names to their CSS hide class names
+ * @private
+ * @param property - The task property name
+ * @returns The corresponding CSS hide class name
+ */
+export function getHideClassForProperty(property: taskPropertiesNames): string {
+	switch (property) {
+		case taskPropertiesNames.ID:
+			return "hide-task-id";
+		case taskPropertiesNames.Tags:
+			return "hide-task-tags";
+		case taskPropertiesNames.CreatedDate:
+			return "hide-task-created";
+		case taskPropertiesNames.StartDate:
+			return "hide-task-start";
+		case taskPropertiesNames.ScheduledDate:
+			return "hide-task-scheduled";
+		case taskPropertiesNames.DueDate:
+			return "hide-task-due";
+		case taskPropertiesNames.CompletionDate:
+			return "hide-task-completion";
+		case taskPropertiesNames.CancelledDate:
+			return "hide-task-cancelled";
+		case taskPropertiesNames.Priority:
+			return "hide-task-priority";
+		case taskPropertiesNames.Time:
+			return "hide-task-time";
+		case taskPropertiesNames.Dependencies:
+			return "hide-task-dependsOn";
+		case taskPropertiesNames.OnCompletion:
+			return "hide-task-onCompletion";
+		case taskPropertiesNames.Recurring:
+			return "hide-task-recurring";
+		default:
+			return "";
+	}
+}

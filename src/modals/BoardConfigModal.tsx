@@ -514,12 +514,6 @@ const ConfigModalContent: React.FC<ConfigModalProps> = ({
 
 					setLocalBoards(updatedBoards);
 					setIsEdited(true);
-
-					// I need to re-render the columnListRef section here
-					// if (columnListRef.current) {
-					// 	// Force re-render by updating the ref
-					// 	columnListRef.current.innerHTML = columnListRef.current.innerHTML;
-					// }
 				} catch (error) {
 					bugReporterManagerInsatance.showNotice(36, "Error in Sortable onSort", error as string, "BoardConfigModal.tsx/onSort");
 				}

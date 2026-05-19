@@ -1187,7 +1187,6 @@ export class SettingsManager {
 											.join(", ")})`;
 										tag.color = rgbaColor;
 										colorInputRef.setValue(rgbaColor);
-										// row.style.backgroundColor = rgbaColor;
 									})
 									.on("hide", () => {
 										renderTagColors();

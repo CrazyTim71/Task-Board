@@ -688,15 +688,15 @@ export class TaskFilterComponent extends Component {
 
 			const propertyValue = propertySelect.getValue();
 			if (propertyValue === "priority" || propertyValue === "status") {
-				valueInput.style.display = "none";
-				dropdownInputContainer.style.display = valueActuallyNeeded
-					? "block"
-					: "none";
+				valueInput.addClass("taskboard_display_none");
+				if (valueActuallyNeeded)
+					dropdownInputContainer.addClass("taskboard_display_block");
+				else dropdownInputContainer.addClass("taskboard_display_none");
 			} else {
-				valueInput.style.display = valueActuallyNeeded
-					? "block"
-					: "none";
-				dropdownInputContainer.style.display = "none";
+				if (valueActuallyNeeded)
+					valueInput.addClass("taskboard_display_block");
+				else valueInput.addClass("taskboard_display_none");
+				dropdownInputContainer.addClass("taskboard_display_none");
 			}
 
 			if (!valueActuallyNeeded && filterData.value !== undefined) {
@@ -888,7 +888,7 @@ export class TaskFilterComponent extends Component {
 				break;
 			case "status":
 				// valueInput.type = "text";
-				valueInput.style.display = "none";
+				valueInput.addClass("taskboard_display_none");
 				// // First remove the older dropdown options present inside valueSelect
 				// if(valueSelect.selectEl.options.length > 0) {
 				// 	valueSelect.
@@ -923,13 +923,9 @@ export class TaskFilterComponent extends Component {
 						(option) => {
 							if (option.value.startsWith("__group_")) {
 								option.disabled = true;
-								option.style.cssText = `
-        color: var(--text-muted);
-        font-weight: var(--font-semibold);
-        background: var(--background-secondary);
-        pointer-events: none;
-        user-select: none;
-      `;
+								option.addClass(
+									".taskboard_customstatus_dropdown_option",
+								);
 							}
 						},
 					);
@@ -995,7 +991,7 @@ export class TaskFilterComponent extends Component {
 				// 	"compact-select",
 				// ]);
 				// valueInput.replaceWith(dropdownInput.selectEl);
-				valueInput.style.display = "none";
+				valueInput.addClass("taskboard_display_none");
 				valueSelect.addOptions(
 					getPriorityOptionsForDropdown().reduce(
 						(
@@ -1263,7 +1259,7 @@ export class TaskFilterComponent extends Component {
 
 		// if (valueSelect) {
 		// 	console.log("Removing dropdown input");
-		// 	valueInput.style.display = "none";
+		// 	valueInput.addClass("taskboard_display_none");
 		// 	// if (valueActuallyNeeded) {
 		// 	// } else {
 		// 	// 	console.log("Removing dropdown input - 2");
@@ -1276,13 +1272,15 @@ export class TaskFilterComponent extends Component {
 
 		const propertyValue = propertySelect.getValue();
 		if (propertyValue === "priority" || propertyValue === "status") {
-			valueInput.style.display = "none";
-			dropdownInputContainer.style.display = valueActuallyNeeded
-				? "block"
-				: "none";
+			valueInput.addClass("taskboard_display_none");
+			if (valueActuallyNeeded)
+				dropdownInputContainer.addClass("taskboard_display_block");
+			else dropdownInputContainer.addClass("taskboard_display_none");
 		} else {
-			dropdownInputContainer.style.display = "none";
-			valueInput.style.display = valueActuallyNeeded ? "block" : "none";
+			dropdownInputContainer.addClass("taskboard_display_none");
+			if (valueActuallyNeeded)
+				valueInput.addClass("taskboard_display_block");
+			else valueInput.addClass("taskboard_display_none");
 		}
 
 		if (valueActuallyNeeded) {
