@@ -171,7 +171,7 @@ export class FrontmatterRenderer {
 			cls: ["metadata-properties", "taskboard-frontmatter-properties"],
 		});
 		if (this.isFrontmatterContainerCollapsed) {
-			propertiesContainer.addClass("taskboard_display_none");
+			propertiesContainer.hide()
 			const collapseIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>`;
 			collapseIcon.insertAdjacentHTML("beforeend", collapseIconSVG);
 		}
@@ -185,7 +185,7 @@ export class FrontmatterRenderer {
 				!this.isFrontmatterContainerCollapsed;
 
 			if (this.isFrontmatterContainerCollapsed) {
-				propertiesContainer.addClass("taskboard_display_none");
+				propertiesContainer.hide()
 				const collapseIconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>`;
 				collapseIcon.insertAdjacentHTML("beforeend", collapseIconSVG);
 			} else {

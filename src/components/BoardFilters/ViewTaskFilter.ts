@@ -688,15 +688,20 @@ export class TaskFilterComponent extends Component {
 
 			const propertyValue = propertySelect.getValue();
 			if (propertyValue === "priority" || propertyValue === "status") {
-				valueInput.addClass("taskboard_display_none");
+				valueInput.hide();
 				if (valueActuallyNeeded)
-					dropdownInputContainer.addClass("taskboard_display_block");
-				else dropdownInputContainer.addClass("taskboard_display_none");
+					dropdownInputContainer.show()
+				else {
+					dropdownInputContainer.hide();
+				}
 			} else {
 				if (valueActuallyNeeded)
-					valueInput.addClass("taskboard_display_block");
-				else valueInput.addClass("taskboard_display_none");
-				dropdownInputContainer.addClass("taskboard_display_none");
+					valueInput.show()
+				else {
+					valueInput.hide();
+				}
+				dropdownInputContainer.hide();
+				dropdownInputContainer.hide();
 			}
 
 			if (!valueActuallyNeeded && filterData.value !== undefined) {
@@ -888,7 +893,7 @@ export class TaskFilterComponent extends Component {
 				break;
 			case "status":
 				// valueInput.type = "text";
-				valueInput.addClass("taskboard_display_none");
+				valueInput.hide();
 				// // First remove the older dropdown options present inside valueSelect
 				// if(valueSelect.selectEl.options.length > 0) {
 				// 	valueSelect.
@@ -991,7 +996,7 @@ export class TaskFilterComponent extends Component {
 				// 	"compact-select",
 				// ]);
 				// valueInput.replaceWith(dropdownInput.selectEl);
-				valueInput.addClass("taskboard_display_none");
+				valueInput.hide();
 				valueSelect.addOptions(
 					getPriorityOptionsForDropdown().reduce(
 						(
@@ -1259,7 +1264,7 @@ export class TaskFilterComponent extends Component {
 
 		// if (valueSelect) {
 		// 	console.log("Removing dropdown input");
-		// 	valueInput.addClass("taskboard_display_none");
+		// 	valueInput.hide()
 		// 	// if (valueActuallyNeeded) {
 		// 	// } else {
 		// 	// 	console.log("Removing dropdown input - 2");
@@ -1272,15 +1277,15 @@ export class TaskFilterComponent extends Component {
 
 		const propertyValue = propertySelect.getValue();
 		if (propertyValue === "priority" || propertyValue === "status") {
-			valueInput.addClass("taskboard_display_none");
+			valueInput.hide();
 			if (valueActuallyNeeded)
-				dropdownInputContainer.addClass("taskboard_display_block");
-			else dropdownInputContainer.addClass("taskboard_display_none");
+				dropdownInputContainer.show()
+			else dropdownInputContainer.hide();
 		} else {
-			dropdownInputContainer.addClass("taskboard_display_none");
+			dropdownInputContainer.hide();
 			if (valueActuallyNeeded)
-				valueInput.addClass("taskboard_display_block");
-			else valueInput.addClass("taskboard_display_none");
+				valueInput.show()
+			else valueInput.hide();
 		}
 
 		if (valueActuallyNeeded) {
@@ -1376,7 +1381,7 @@ export class TaskFilterComponent extends Component {
 			) as HTMLElement;
 			if (conjunctionElement) {
 				if (index !== 0) {
-					conjunctionElement.show();
+					conjunctionElement.show()
 					if (groupCondition === "any") {
 						conjunctionElement.textContent = t("or");
 					} else if (groupCondition === "none") {
