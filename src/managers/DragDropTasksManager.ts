@@ -124,7 +124,9 @@ class DragDropTasksManager {
 
 		this.isAutoScrolling = true;
 
-		const taskBoardViewSection = document.querySelector(".taskBoardView");
+		const taskBoardViewSection = document.querySelector(
+			".taskBoardViewSectionWrapper ",
+		);
 
 		if (taskBoardViewSection) {
 			const handleDragOver = (e: Event) => {
