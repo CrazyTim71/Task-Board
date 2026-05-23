@@ -751,11 +751,13 @@ export default class TaskBoard extends Plugin {
 		this.renameQueue = [];
 
 		if (totalFilesLength > 0) {
-			// Show progress notice
-			this.currentProgressNotice = new Notice(
-				`Processing renamed files: 0/${totalFilesLength}`,
-				0,
-			);
+			if (totalFilesLength > 20) {
+				// Show progress notice
+				this.currentProgressNotice = new Notice(
+					`Processing renamed files: 0/${totalFilesLength}`,
+					0,
+				);
+			}
 
 			let processed = 0;
 			while (allowedFiles.length > 0) {
@@ -769,8 +771,10 @@ export default class TaskBoard extends Plugin {
 					);
 					processed++;
 
-					// Update progress notice
-					this.currentProgressNotice.messageEl.textContent = `Task Board : Processing renamed files: ${processed}/${totalFilesLength}`;
+					if (this.currentProgressNotice) {
+						// Update progress notice
+						this.currentProgressNotice.messageEl.textContent = `Task Board : Processing renamed files: ${processed}/${totalFilesLength}`;
+					}
 				} catch (error) {
 					this.currentProgressNotice?.hide();
 					// this.currentProgressNotice = null;
@@ -796,7 +800,7 @@ export default class TaskBoard extends Plugin {
 			this.plugin.vaultScanner.saveTasksToJsonCache();
 			eventEmitter.emit("REFRESH_BOARD");
 
-			if (processed > 0) {
+			if (processed > 20) {
 				new Notice(
 					`✓ Task Board : Finished processing ${totalFilesLength} renamed file(s)`,
 				);
@@ -843,11 +847,13 @@ export default class TaskBoard extends Plugin {
 		const totalFilesLength = allowedFiles.length;
 
 		if (allowedFiles.length > 0) {
-			// Show progress notice
-			this.currentProgressNotice = new Notice(
-				`Processing deleted files: 0/${totalFilesLength}`,
-				0,
-			);
+			if (allowedFiles.length > 20) {
+				// Show progress notice
+				this.currentProgressNotice = new Notice(
+					`Processing deleted files: 0/${totalFilesLength}`,
+					0,
+				);
+			}
 
 			let processed = 0;
 			while (allowedFiles.length > 0) {
@@ -857,8 +863,10 @@ export default class TaskBoard extends Plugin {
 					this.realTimeScanner.onFileDeleted(file);
 					processed++;
 
-					// Update progress notice
-					this.currentProgressNotice.messageEl.textContent = `Task Board : Processing deleted files: ${processed}/${totalFilesLength}`;
+					if (this.currentProgressNotice) {
+						// Update progress notice
+						this.currentProgressNotice.messageEl.textContent = `Task Board : Processing deleted files: ${processed}/${totalFilesLength}`;
+					}
 				} catch (error) {
 					this.currentProgressNotice?.hide();
 					// this.currentProgressNotice = null;
@@ -883,7 +891,7 @@ export default class TaskBoard extends Plugin {
 			this.plugin.vaultScanner.saveTasksToJsonCache();
 			eventEmitter.emit("REFRESH_COLUMN");
 
-			if (processed > 0) {
+			if (processed > 20) {
 				new Notice(
 					`✓ Task Board : Finished processing ${totalFilesLength} deleted file(s)`,
 				);
@@ -928,54 +936,49 @@ export default class TaskBoard extends Plugin {
 		this.plugin.vaultScanner.refreshTasksFromFiles(allowedFiles, false);
 
 		// Show progress notice only if the files are more than 10
-		if (totalFilesLength > 10) {
+		if (totalFilesLength > 20) {
 			this.currentProgressNotice = new Notice(
 				`Task Board : Processing created files: 0/${totalFilesLength}`,
 				0,
 			);
-			let processed = 0;
-			while (allowedFiles.length > 0) {
-				const file = allowedFiles.shift()!;
+		}
 
-				try {
-					// if (
-					// 	fileTypeAllowedForScanning(
-					// 		this.plugin.settings.data.globalSettings,
-					// 		file
-					// 	)
-					// ) {
-					// 	await this.realTimeScanner.processAllUpdatedFiles(file);
-					// }
-					processed++;
+		let processed = 0;
+		while (allowedFiles.length > 0) {
+			const file = allowedFiles.shift()!;
 
-					// Update progress notice
+			try {
+				await this.realTimeScanner.processAllUpdatedFiles(file);
+				processed++;
+
+				// Update progress notice
+				if (this.currentProgressNotice)
 					this.currentProgressNotice.messageEl.textContent = `Task Board : Processing created files: ${processed}/${totalFilesLength}`;
-				} catch (error) {
-					this.currentProgressNotice?.hide();
-					// this.currentProgressNotice = null;
-					bugReporterManagerInsatance.addToLogs(
-						164,
-						String(error),
-						"main.ts/processCreateQueue",
-					);
-				}
-
-				// Add delay between processing each file to prevent blocking UI
-				if (allowedFiles.length > 0) {
-					await new Promise((resolve) =>
-						setTimeout(resolve, this.PROCESSING_INTERVAL),
-					);
-				}
-			}
-
-			// Hide progress notice after completion
-			this.currentProgressNotice?.hide();
-			this.currentProgressNotice = null;
-			if (processed > 0) {
-				new Notice(
-					`✓ Task Board : Finished processing ${totalFilesLength} created file(s)`,
+			} catch (error) {
+				this.currentProgressNotice?.hide();
+				// this.currentProgressNotice = null;
+				bugReporterManagerInsatance.addToLogs(
+					164,
+					String(error),
+					"main.ts/processCreateQueue",
 				);
 			}
+
+			// Add delay between processing each file to prevent blocking UI
+			if (allowedFiles.length > 0) {
+				await new Promise((resolve) =>
+					setTimeout(resolve, this.PROCESSING_INTERVAL),
+				);
+			}
+		}
+
+		// Hide progress notice after completion
+		this.currentProgressNotice?.hide();
+		this.currentProgressNotice = null;
+		if (processed > 20) {
+			new Notice(
+				`✓ Task Board : Finished processing ${totalFilesLength} created file(s)`,
+			);
 		}
 	}
 
