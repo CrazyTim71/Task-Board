@@ -44,7 +44,7 @@ class HiddenPropertyWidget extends WidgetType {
  */
 export function getTaskPropertyRegexPatterns(
 	property: taskPropertiesNames,
-	tasksPropertyFormat: string
+	tasksPropertyFormat: string,
 ): RegExp {
 	if (tasksPropertyFormat === "1" || tasksPropertyFormat === "2") {
 		switch (property) {
@@ -235,7 +235,7 @@ export function getTaskPropertyRegexPatterns(
  */
 function createPropertyDecorations(
 	view: EditorView,
-	plugin: TaskBoard
+	plugin: TaskBoard,
 ): DecorationSet {
 	const decorations: Range<Decoration>[] = [];
 	const hiddenProperties =
@@ -274,7 +274,7 @@ function createPropertyDecorations(
 		hiddenProperties.forEach((property) => {
 			const pattern = getTaskPropertyRegexPatterns(
 				property,
-				plugin.settings.data.globalSettings?.taskPropertyFormat
+				plugin.settings.data.globalSettings?.taskPropertyFormat,
 			);
 			const matches = Array.from(lineText.matchAll(pattern));
 			// console.log(
@@ -303,10 +303,11 @@ function createPropertyDecorations(
 				// );
 
 				// Check if cursor is within or near the match
-				const cursorNearMatch =
-					cursorOnLine &&
-					cursorPos >= matchStart - 1 &&
-					cursorPos <= matchEnd + 1;
+				// The previous behavior was providing a bad experience, hence it will be better if all the properties show itself, as soon as the cursor enters the task-line.
+				const cursorNearMatch = cursorOnLine;
+				// &&
+				// cursorPos >= matchStart - 1 &&
+				// cursorPos <= matchEnd + 1;
 
 				// console.log(
 				// 	"Found match:",
@@ -324,7 +325,7 @@ function createPropertyDecorations(
 							attributes: {
 								style: "opacity: 0; font-size: 0; display: none;",
 							},
-						}).range(matchStart, matchEnd)
+						}).range(matchStart, matchEnd),
 					);
 
 					// Add a placeholder widget
@@ -332,7 +333,7 @@ function createPropertyDecorations(
 						Decoration.widget({
 							widget: new HiddenPropertyWidget(match[0]),
 							side: 0,
-						}).range(matchEnd)
+						}).range(matchEnd),
 					);
 				}
 			}
@@ -360,7 +361,7 @@ function createPropertyDecorations(
 					? (b.value as Decoration & { side?: number }).side
 					: 0;
 			return (aSide ?? 0) - (bSide ?? 0);
-		})
+		}),
 	);
 }
 
@@ -401,14 +402,14 @@ const propertyHidingPlugin = (plugin: TaskBoard) =>
 				) {
 					this.decorations = createPropertyDecorations(
 						update.view,
-						plugin
+						plugin,
 					);
 				}
 			}
 		},
 		{
 			decorations: (v) => v.decorations,
-		}
+		},
 	);
 
 /**
