@@ -169,7 +169,7 @@ export default class TaskBoard extends Plugin {
 			// Register markdown post processor for hiding task properties
 			this.registerReadingModePostProcessor();
 
-			setTimeout(() => this.findModifiedFilesOnAppAbsense(), 10000);
+			setTimeout(() => this.findModifiedFilesOnAppAbsense(), 5000);
 		});
 	}
 
