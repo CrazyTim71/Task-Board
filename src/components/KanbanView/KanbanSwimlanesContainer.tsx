@@ -179,6 +179,8 @@ const KanbanSwimlanesContainer: React.FC<KanbanSwimlanesContainerProps> = ({
 					return columnTasks.filter((task: taskItem) => {
 						let values = getPropertyValues(task, property, customValue);
 						if (property === "tags") {
+							if (values.length === 0 && swimlaneItemValue.trim() === "") return true;
+
 							values = values.map((tag: string) => tag.replace('#', '').toLocaleLowerCase());
 							const doesValuesHaveCustomValues = values.some((v: string) => customValues.has(v));
 							return values.some((v: string) => remainingValuesForAllRest.includes(v) && !doesValuesHaveCustomValues) || values.length === 0;
@@ -192,6 +194,8 @@ const KanbanSwimlanesContainer: React.FC<KanbanSwimlanesContainerProps> = ({
 				return columnTasks.filter((task) => {
 					let values = getPropertyValues(task, property, customValue);
 					if (property === "tags") {
+						if (values.length === 0 && swimlaneItemValue.trim() === "") return true;
+
 						values = values.map((tag: string) => tag.replace('#', '').toLocaleLowerCase());
 						return values.includes(swimlaneItemValue.replace('#', '').toLocaleLowerCase());
 					} else if (property === "filePath") {
@@ -203,7 +207,14 @@ const KanbanSwimlanesContainer: React.FC<KanbanSwimlanesContainerProps> = ({
 			});
 
 			const statusName = getStatusNameFromStatusSymbol(swimlaneItemValue, plugin.settings.data.globalSettings);
-			const swimlaneName = property === 'status' ? (statusName ? statusName : 'All rest') : swimlaneItemValue;
+			let swimlaneName = swimlaneItemValue;
+			if (property === 'status') {
+				swimlaneName = statusName ? statusName : 'All rest';
+			} else if (property === 'tags' && swimlaneItemValue.trim() === "") {
+				swimlaneName = "No tags";
+			} else if (property === 'filePath') {
+				swimlaneName = swimlaneItemValue.split("/").pop() ?? swimlaneItemValue;
+			}
 			const isSwimlaneMinimized = minimized?.includes(swimlaneName) ?? false;
 
 			return {
@@ -342,7 +353,7 @@ const KanbanSwimlanesContainer: React.FC<KanbanSwimlanesContainerProps> = ({
 					{swimlanes.map((swimlane, rowIndex) => (
 						<React.Fragment key={swimlane.swimlaneValue}>
 							{headerUIType === HeaderUITypeOptions.vertical ? (
-								<div className={`swimlaneRow verticalUI ${swimlane.minimized ? 'minimized' : ''}`}>
+								<div className={`swimlaneRow verticalUI ${swimlane.minimized ? 'minimized' : ''}`} >
 									{/* Swimlane Label */}
 									<div className='swimlaneHeaderContainer-vertical'>
 										<div className='swimlaneHeader-vertical'>
@@ -350,8 +361,8 @@ const KanbanSwimlanesContainer: React.FC<KanbanSwimlanesContainerProps> = ({
 												{swimlane.tasks.flat().length ?? 0}
 											</div>
 											<div className="swimlaneHeaderName-vertical" title={swimlane.swimlaneName}>
-												<div className='swimlaneHeaderNameLable'>{property}:</div>
-												<div className='swimlaneHeaderNameValue'>{swimlane.swimlaneName}</div>
+												<div className='swimlaneHeaderNameLable-vertical'>{property}:</div>
+												<div className='swimlaneHeaderNameValue-vertical'>{swimlane.swimlaneName}</div>
 											</div>
 											<div className='swimlaneHeaderContainerMinimizICon' onClick={() => handleSwimlaneMinimize(rowIndex)}>
 												<ChevronRight />
